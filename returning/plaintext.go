@@ -10,7 +10,7 @@ func (handlerFunc Plaintext) ServeHTTP(writer http.ResponseWriter, request *http
 	if CatchPanics {
 		defer func() {
 			if r := recover(); r != nil {
-				writeInternalServerError(writer, r)
+				WriteInternalServerError(writer, r)
 			}
 		}()
 	}
@@ -20,13 +20,16 @@ func (handlerFunc Plaintext) ServeHTTP(writer http.ResponseWriter, request *http
 		return
 	}
 
-	writer.Header().Add("Content-Type", "text/plain; charset=utf-8")
-	writer.Write([]byte(response))
+	WritePlaintext(writer, response)
 }
 
 type StaticPlaintext string
 
 func (s StaticPlaintext) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	WritePlaintext(writer, string(s))
+}
+
+func WritePlaintext(writer http.ResponseWriter, response string) {
 	writer.Header().Add("Content-Type", "text/plain; charset=utf-8")
-	writer.Write([]byte(s))
+	writer.Write([]byte(response))
 }

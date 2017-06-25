@@ -12,7 +12,7 @@ func (handlerFunc XML) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 	if CatchPanics {
 		defer func() {
 			if r := recover(); r != nil {
-				writeInternalServerError(writer, r)
+				WriteInternalServerError(writer, r)
 			}
 		}()
 	}
@@ -22,14 +22,18 @@ func (handlerFunc XML) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 		return
 	}
 
+	WriteXML(writer, response)
+}
+
+func WriteXML(writer http.ResponseWriter, response interface{}) {
 	buf := bytes.NewBuffer(make([]byte, 0, 1024))
 	encoder := xml.NewEncoder(buf)
 	if PrettyPrintResponses {
 		encoder.Indent("", PrettyPrintIndent)
 	}
-	err = encoder.Encode(response)
+	err := encoder.Encode(response)
 	if err != nil {
-		writeInternalServerError(writer, err)
+		WriteInternalServerError(writer, err)
 		return
 	}
 	writer.Header().Set("Content-Type", "application/xml; charset=utf-8")

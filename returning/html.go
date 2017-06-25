@@ -10,7 +10,7 @@ func (handlerFunc HTML) ServeHTTP(writer http.ResponseWriter, request *http.Requ
 	if CatchPanics {
 		defer func() {
 			if r := recover(); r != nil {
-				writeInternalServerError(writer, r)
+				WriteInternalServerError(writer, r)
 			}
 		}()
 	}
@@ -20,13 +20,16 @@ func (handlerFunc HTML) ServeHTTP(writer http.ResponseWriter, request *http.Requ
 		return
 	}
 
-	writer.Header().Add("Content-Type", "text/html; charset=utf-8")
-	writer.Write(response)
+	WriteHTML(writer, response)
 }
 
 type StaticHTML string
 
 func (s StaticHTML) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	WriteHTML(writer, []byte(s))
+}
+
+func WriteHTML(writer http.ResponseWriter, response []byte) {
 	writer.Header().Add("Content-Type", "text/html; charset=utf-8")
-	writer.Write([]byte(s))
+	writer.Write(response)
 }

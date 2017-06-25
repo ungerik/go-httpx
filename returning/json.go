@@ -17,7 +17,7 @@ func (handlerFunc JSON) ServeHTTP(writer http.ResponseWriter, request *http.Requ
 	if CatchPanics {
 		defer func() {
 			if r := recover(); r != nil {
-				writeInternalServerError(writer, r)
+				WriteInternalServerError(writer, r)
 			}
 		}()
 	}
@@ -27,14 +27,18 @@ func (handlerFunc JSON) ServeHTTP(writer http.ResponseWriter, request *http.Requ
 		return
 	}
 
+	WriteJSON(writer, response)
+}
+
+func WriteJSON(writer http.ResponseWriter, response interface{}) {
 	buf := bytes.NewBuffer(make([]byte, 0, 1024))
 	encoder := json.NewEncoder(buf)
 	if PrettyPrintResponses {
 		encoder.SetIndent("", PrettyPrintIndent)
 	}
-	err = encoder.Encode(response)
+	err := encoder.Encode(response)
 	if err != nil {
-		writeInternalServerError(writer, err)
+		WriteInternalServerError(writer, err)
 		return
 	}
 	writer.Header().Set("Content-Type", "application/json; charset=utf-8")

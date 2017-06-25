@@ -7,8 +7,9 @@ import (
 )
 
 var (
-	CatchPanics                       bool
-	DebugShowInternalErrorsInResponse bool
+	CatchPanics                             bool
+	DebugShowInternalErrorsInResponse       bool
+	DebugShowInternalErrorsInResponseFormat = "\n%+v"
 )
 
 type Error func(http.ResponseWriter, *http.Request) error
@@ -17,7 +18,7 @@ func (handlerFunc Error) ServeHTTP(writer http.ResponseWriter, request *http.Req
 	if CatchPanics {
 		defer func() {
 			if r := recover(); r != nil {
-				writeInternalServerError(writer, r)
+				WriteInternalServerError(writer, r)
 			}
 		}()
 	}
@@ -25,10 +26,10 @@ func (handlerFunc Error) ServeHTTP(writer http.ResponseWriter, request *http.Req
 	HandleError(writer, request, err)
 }
 
-func writeInternalServerError(writer http.ResponseWriter, err interface{}) {
+func WriteInternalServerError(writer http.ResponseWriter, err interface{}) {
 	message := http.StatusText(http.StatusInternalServerError)
 	if DebugShowInternalErrorsInResponse {
-		message += fmt.Sprintf(": %+v", err)
+		message += fmt.Sprintf(DebugShowInternalErrorsInResponseFormat, err)
 	}
 	http.Error(writer, message, http.StatusInternalServerError)
 }
@@ -41,7 +42,7 @@ func HandleError(writer http.ResponseWriter, request *http.Request, err error) b
 		e.ServeHTTP(writer, request)
 		return true
 	default:
-		writeInternalServerError(writer, err)
+		WriteInternalServerError(writer, err)
 		return true
 	}
 }
