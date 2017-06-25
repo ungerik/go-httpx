@@ -1,6 +1,7 @@
 package returning
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 )
@@ -26,13 +27,16 @@ func (handlerFunc JSON) ServeHTTP(writer http.ResponseWriter, request *http.Requ
 		return
 	}
 
-	writer.Header().Set("Content-Type", "application/json; charset=utf-8")
-	encoder := json.NewEncoder(writer)
+	buf := bytes.NewBuffer(make([]byte, 0, 1024))
+	encoder := json.NewEncoder(buf)
 	if PrettyPrintResponses {
 		encoder.SetIndent("", PrettyPrintIndent)
 	}
 	err = encoder.Encode(response)
 	if err != nil {
 		writeInternalServerError(writer, err)
+		return
 	}
+	writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+	writer.Write(buf.Bytes())
 }

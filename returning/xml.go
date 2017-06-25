@@ -1,6 +1,7 @@
 package returning
 
 import (
+	"bytes"
 	"encoding/xml"
 	"net/http"
 )
@@ -21,14 +22,17 @@ func (handlerFunc XML) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 		return
 	}
 
-	writer.Header().Set("Content-Type", "application/xml; charset=utf-8")
-	writer.Write([]byte(xml.Header))
-	encoder := xml.NewEncoder(writer)
+	buf := bytes.NewBuffer(make([]byte, 0, 1024))
+	encoder := xml.NewEncoder(buf)
 	if PrettyPrintResponses {
 		encoder.Indent("", PrettyPrintIndent)
 	}
 	err = encoder.Encode(response)
 	if err != nil {
 		writeInternalServerError(writer, err)
+		return
 	}
+	writer.Header().Set("Content-Type", "application/xml; charset=utf-8")
+	writer.Write([]byte(xml.Header))
+	writer.Write(buf.Bytes())
 }
