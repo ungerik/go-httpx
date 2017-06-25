@@ -16,12 +16,7 @@ func (handlerFunc HTML) ServeHTTP(writer http.ResponseWriter, request *http.Requ
 	}
 
 	response, err := handlerFunc(writer, request)
-	if err != nil {
-		if errHandler, ok := err.(ErrorHandler); ok {
-			errHandler.ServeHTTP(writer, request)
-		} else {
-			writeInternalServerError(writer, err)
-		}
+	if HandleError(writer, request, err) {
 		return
 	}
 

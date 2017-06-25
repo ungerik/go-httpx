@@ -22,14 +22,7 @@ func (handlerFunc Error) ServeHTTP(writer http.ResponseWriter, request *http.Req
 		}()
 	}
 	err := handlerFunc(writer, request)
-	switch e := err.(type) {
-	case nil:
-		return
-	case ErrorHandler:
-		e.ServeHTTP(writer, request)
-	default:
-		writeInternalServerError(writer, e)
-	}
+	HandleError(writer, request, err)
 }
 
 func writeInternalServerError(writer http.ResponseWriter, err interface{}) {
@@ -38,6 +31,19 @@ func writeInternalServerError(writer http.ResponseWriter, err interface{}) {
 		message += fmt.Sprintf(": %+v", err)
 	}
 	http.Error(writer, message, http.StatusInternalServerError)
+}
+
+func HandleError(writer http.ResponseWriter, request *http.Request, err error) bool {
+	switch e := err.(type) {
+	case nil:
+		return false
+	case ErrorHandler:
+		e.ServeHTTP(writer, request)
+		return true
+	default:
+		writeInternalServerError(writer, err)
+		return true
+	}
 }
 
 type ErrorHandler interface {
