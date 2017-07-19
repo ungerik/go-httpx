@@ -1,4 +1,4 @@
-package returning
+package respond
 
 import (
 	"fmt"
@@ -23,7 +23,7 @@ func (handlerFunc Error) ServeHTTP(writer http.ResponseWriter, request *http.Req
 		}()
 	}
 	err := handlerFunc(writer, request)
-	HandleError(writer, request, err)
+	HandleError(err, writer, request)
 }
 
 func WriteInternalServerError(writer http.ResponseWriter, err interface{}) {
@@ -34,7 +34,7 @@ func WriteInternalServerError(writer http.ResponseWriter, err interface{}) {
 	http.Error(writer, message, http.StatusInternalServerError)
 }
 
-func HandleError(writer http.ResponseWriter, request *http.Request, err error) bool {
+func HandleError(err error, writer http.ResponseWriter, request *http.Request) bool {
 	switch e := err.(type) {
 	case nil:
 		return false

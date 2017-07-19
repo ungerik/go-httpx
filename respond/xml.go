@@ -1,4 +1,4 @@
-package returning
+package respond
 
 import (
 	"bytes"
@@ -18,7 +18,7 @@ func (handlerFunc XML) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 	}
 
 	response, err := handlerFunc(writer, request)
-	if HandleError(writer, request, err) {
+	if HandleError(err, writer, request) {
 		return
 	}
 
@@ -28,7 +28,7 @@ func (handlerFunc XML) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 func WriteXML(writer http.ResponseWriter, response interface{}) {
 	buf := bytes.NewBuffer(make([]byte, 0, 1024))
 	encoder := xml.NewEncoder(buf)
-	if PrettyPrintResponses {
+	if PrettyPrint {
 		encoder.Indent("", PrettyPrintIndent)
 	}
 	err := encoder.Encode(response)

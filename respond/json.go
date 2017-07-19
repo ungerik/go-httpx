@@ -1,4 +1,4 @@
-package returning
+package respond
 
 import (
 	"bytes"
@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	PrettyPrintResponses bool
-	PrettyPrintIndent    = "  "
+	PrettyPrint       bool
+	PrettyPrintIndent = "  "
 )
 
 type JSON func(http.ResponseWriter, *http.Request) (response interface{}, err error)
@@ -23,7 +23,7 @@ func (handlerFunc JSON) ServeHTTP(writer http.ResponseWriter, request *http.Requ
 	}
 
 	response, err := handlerFunc(writer, request)
-	if HandleError(writer, request, err) {
+	if HandleError(err, writer, request) {
 		return
 	}
 
@@ -31,16 +31,24 @@ func (handlerFunc JSON) ServeHTTP(writer http.ResponseWriter, request *http.Requ
 }
 
 func WriteJSON(writer http.ResponseWriter, response interface{}) {
-	buf := bytes.NewBuffer(make([]byte, 0, 1024))
-	encoder := json.NewEncoder(buf)
-	if PrettyPrintResponses {
-		encoder.SetIndent("", PrettyPrintIndent)
-	}
-	err := encoder.Encode(response)
+	b, err := EncodeJSON(response)
 	if err != nil {
 		WriteInternalServerError(writer, err)
 		return
 	}
 	writer.Header().Set("Content-Type", "application/json; charset=utf-8")
-	writer.Write(buf.Bytes())
+	writer.Write(b)
+}
+
+func EncodeJSON(response interface{}) ([]byte, error) {
+	buf := bytes.NewBuffer(make([]byte, 0, 1024))
+	encoder := json.NewEncoder(buf)
+	if PrettyPrint {
+		encoder.SetIndent("", PrettyPrintIndent)
+	}
+	err := encoder.Encode(response)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }

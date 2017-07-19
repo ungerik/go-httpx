@@ -1,4 +1,4 @@
-package returning
+package respond
 
 import (
 	"net/http"
@@ -16,7 +16,7 @@ func (handlerFunc HTML) ServeHTTP(writer http.ResponseWriter, request *http.Requ
 	}
 
 	response, err := handlerFunc(writer, request)
-	if HandleError(writer, request, err) {
+	if HandleError(err, writer, request) {
 		return
 	}
 
