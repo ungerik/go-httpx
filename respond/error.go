@@ -6,7 +6,6 @@ import (
 	"github.com/ungerik/go-httpx/httperr"
 )
 
-var CatchPanics bool
 
 type Error func(http.ResponseWriter, *http.Request) error
 

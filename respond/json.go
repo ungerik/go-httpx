@@ -7,11 +7,6 @@ import (
 	"github.com/ungerik/go-httpx/httperr"
 )
 
-var (
-	PrettyPrint       bool
-	PrettyPrintIndent = "  "
-)
-
 type JSON func(http.ResponseWriter, *http.Request) (response interface{}, err error)
 
 func (handlerFunc JSON) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
