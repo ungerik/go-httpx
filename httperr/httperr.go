@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
@@ -12,6 +14,18 @@ func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
 		message += fmt.Sprintf(DebugShowInternalErrorsInResponseFormat, err)
 	}
 	http.Error(writer, message, http.StatusInternalServerError)
+}
+
+// Recover calls recover and converts panic values into an error
+func Recover() error {
+	switch r := recover().(type) {
+	case nil:
+		return nil
+	case error:
+		return r
+	default:
+		return errors.Errorf("%v", r)
+	}
 }
 
 type Response interface {

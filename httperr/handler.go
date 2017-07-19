@@ -29,3 +29,11 @@ func DefaultHandlerFunc(err error, writer http.ResponseWriter, request *http.Req
 	}
 	return true
 }
+
+func ForEachHandler(err error, writer http.ResponseWriter, request *http.Request, handlers ...Handler) (handledAny bool) {
+	for _, handler := range handlers {
+		handled := handler.HandleError(err, writer, request)
+		handledAny = handledAny || handled
+	}
+	return handledAny
+}

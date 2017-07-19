@@ -11,11 +11,7 @@ type XML func(http.ResponseWriter, *http.Request) (response interface{}, err err
 
 func (handlerFunc XML) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	if CatchPanics {
-		defer func() {
-			if r := recover(); r != nil {
-				httperr.WriteInternalServerError(r, writer)
-			}
-		}()
+		defer httperr.Handle(httperr.Recover(), writer, request)
 	}
 
 	response, err := handlerFunc(writer, request)

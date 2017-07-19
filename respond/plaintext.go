@@ -10,11 +10,7 @@ type Plaintext func(http.ResponseWriter, *http.Request) (string, error)
 
 func (handlerFunc Plaintext) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	if CatchPanics {
-		defer func() {
-			if r := recover(); r != nil {
-				httperr.WriteInternalServerError(r, writer)
-			}
-		}()
+		defer httperr.Handle(httperr.Recover(), writer, request)
 	}
 
 	response, err := handlerFunc(writer, request)
