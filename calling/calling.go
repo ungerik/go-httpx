@@ -5,8 +5,6 @@ import (
 	"reflect"
 )
 
-var ErrorType = reflect.TypeOf((*error)(nil)).Elem()
-
 type WithStringArgsFunc func(args ...string)
 type WithStringArgsErrorFunc func(args ...string) error
 
@@ -40,13 +38,15 @@ func WithStringArgs(function interface{}) WithStringArgsFunc {
 	}
 }
 
+var typeOfError = reflect.TypeOf((*error)(nil)).Elem()
+
 func WithStringArgsError(function interface{}) WithStringArgsErrorFunc {
 	v := reflect.ValueOf(function)
 	t := v.Type()
 	if t.Kind() != reflect.Func {
 		panic("not a function")
 	}
-	if t.NumOut() != 1 || t.Out(0) != ErrorType {
+	if t.NumOut() != 1 || t.Out(0) != typeOfError {
 		panic("must return an error")
 	}
 	numArgs := t.NumIn()

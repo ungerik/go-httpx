@@ -2,6 +2,8 @@ package respond
 
 import (
 	"net/http"
+
+	"github.com/ungerik/go-httpx/httperr"
 )
 
 type HTML func(http.ResponseWriter, *http.Request) ([]byte, error)
@@ -10,13 +12,13 @@ func (handlerFunc HTML) ServeHTTP(writer http.ResponseWriter, request *http.Requ
 	if CatchPanics {
 		defer func() {
 			if r := recover(); r != nil {
-				WriteInternalServerError(writer, r)
+				httperr.WriteInternalServerError(r, writer)
 			}
 		}()
 	}
 
 	response, err := handlerFunc(writer, request)
-	if HandleError(err, writer, request) {
+	if httperr.Handle(err, writer, request) {
 		return
 	}
 
