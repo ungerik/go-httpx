@@ -6,7 +6,6 @@ import (
 	"github.com/ungerik/go-httpx/httperr"
 )
 
-
 type Error func(http.ResponseWriter, *http.Request) error
 
 func (handlerFunc Error) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
@@ -17,6 +16,7 @@ func (handlerFunc Error) ServeHTTP(writer http.ResponseWriter, request *http.Req
 			}
 		}()
 	}
+
 	err := handlerFunc(writer, request)
 	httperr.Handle(err, writer, request)
 }

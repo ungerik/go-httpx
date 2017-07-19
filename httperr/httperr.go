@@ -6,11 +6,6 @@ import (
 	"strings"
 )
 
-var (
-	DebugShowInternalErrorsInResponse       bool
-	DebugShowInternalErrorsInResponseFormat = "\n%+v"
-)
-
 func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
 	message := http.StatusText(http.StatusInternalServerError)
 	if DebugShowInternalErrorsInResponse {
@@ -19,24 +14,12 @@ func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
 	http.Error(writer, message, http.StatusInternalServerError)
 }
 
-func Handle(err error, writer http.ResponseWriter, request *http.Request) bool {
-	if err == nil {
-		return false
-	}
-	if handler, ok := err.(Handler); ok {
-		handler.ServeHTTP(writer, request)
-	} else {
-		WriteInternalServerError(err, writer)
-	}
-	return true
-}
-
-type Handler interface {
+type Response interface {
 	error
 	http.Handler
 }
 
-func New(statusCode int, statusText ...string) Handler {
+func New(statusCode int, statusText ...string) Response {
 	return &errWithStatus{
 		statusCode: statusCode,
 		statusText: strings.Join(statusText, "\n"),
@@ -68,18 +51,18 @@ var (
 	MethodNotAllowed = New(http.StatusMethodNotAllowed) // 405: RFC 7231, 6.5.5
 )
 
-func Redirect(statusCode int, targetURL string) Handler {
+func Redirect(statusCode int, targetURL string) Response {
 	return &redirect{
 		statusCode: statusCode,
 		targetURL:  targetURL,
 	}
 }
 
-func TemporaryRedirect(targetURL string) Handler {
+func TemporaryRedirect(targetURL string) Response {
 	return Redirect(http.StatusTemporaryRedirect, targetURL)
 }
 
-func PermanentRedirect(targetURL string) Handler {
+func PermanentRedirect(targetURL string) Response {
 	return Redirect(http.StatusPermanentRedirect, targetURL)
 }
 
