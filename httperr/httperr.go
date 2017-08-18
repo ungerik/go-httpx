@@ -10,6 +10,9 @@ import (
 
 func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
 	message := http.StatusText(http.StatusInternalServerError)
+	if Logger != nil {
+		Logger.Println(message, err)
+	}
 	if DebugShowInternalErrorsInResponse {
 		message += fmt.Sprintf(DebugShowInternalErrorsInResponseFormat, err)
 	}
@@ -53,6 +56,9 @@ func (e *errWithStatus) Error() string {
 }
 
 func (e *errWithStatus) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	if Logger != nil {
+		Logger.Println(e)
+	}
 	http.Error(writer, e.Error(), e.statusCode)
 }
 
