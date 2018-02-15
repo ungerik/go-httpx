@@ -31,9 +31,49 @@ func Recover() error {
 	}
 }
 
+// Response extends the error interface with the http.Handler interface
+// to enable errors which can render themselves as HTTP responses.
 type Response interface {
 	error
 	http.Handler
+}
+
+// IsResponse returns if err or the cause for err implements the Response interface
+func IsResponse(err error) bool {
+	_, is := errCause(err).(Response)
+	return is
+}
+
+// AsResponse returns err as Response if it or its cause implements the Response interface
+func AsResponse(err error) (resp Response, is bool) {
+	resp, is = errCause(err).(Response)
+	return resp, is
+}
+
+// errCause returns the underlying cause of the error, if possible.
+// An error value has a cause if it implements the following
+// interface:
+//
+//     type causer interface {
+//            Cause() error
+//     }
+//
+// If the error does not implement Cause, the original error will
+// be returned. If the error is nil, nil will be returned without further
+// investigation.
+func errCause(err error) error {
+	type causer interface {
+		Cause() error
+	}
+
+	for err != nil {
+		cause, ok := err.(causer)
+		if !ok {
+			break
+		}
+		err = cause.Cause()
+	}
+	return err
 }
 
 func New(statusCode int, statusText ...string) Response {
