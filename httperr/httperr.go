@@ -11,7 +11,7 @@ import (
 func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
 	message := http.StatusText(http.StatusInternalServerError)
 	if Logger != nil {
-		Logger.Printf("%s: %s", message, err)
+		Logger.Printf("%s: %+v", message, err)
 	}
 	if DebugShowInternalErrorsInResponse {
 		message += fmt.Sprintf(DebugShowInternalErrorsInResponseFormat, err)
