@@ -1,7 +1,7 @@
 package respond
 
 var (
-	CatchPanics       bool
-	PrettyPrint       bool
+	CatchPanics       = true
+	PrettyPrint       = true
 	PrettyPrintIndent = "  "
 )
