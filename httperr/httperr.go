@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/domonda/errors"
 )
 
 func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
