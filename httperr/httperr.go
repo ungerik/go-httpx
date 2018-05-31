@@ -26,8 +26,10 @@ func Recover() error {
 		return nil
 	case error:
 		return r
+	case string:
+		return errors.New(r)
 	default:
-		return errors.Errorf("%v", r)
+		return errors.Errorf("%+v", r)
 	}
 }
 
