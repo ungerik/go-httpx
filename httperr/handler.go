@@ -20,6 +20,10 @@ func Handle(err error, writer http.ResponseWriter, request *http.Request) bool {
 	return DefaultHandler.HandleError(err, writer, request)
 }
 
+func RecoverAndHandlePanic(writer http.ResponseWriter, request *http.Request) bool {
+	return DefaultHandler.HandleError(AsError(recover()), writer, request)
+}
+
 func DefaultHandlerFunc(err error, writer http.ResponseWriter, request *http.Request) bool {
 	if err == nil {
 		return false

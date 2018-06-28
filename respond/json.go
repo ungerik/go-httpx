@@ -11,7 +11,7 @@ type JSON func(http.ResponseWriter, *http.Request) (response interface{}, err er
 
 func (handlerFunc JSON) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	if CatchPanics {
-		defer httperr.Handle(httperr.Recover(), writer, request)
+		defer httperr.RecoverAndHandlePanic(writer, request)
 	}
 
 	response, err := handlerFunc(writer, request)

@@ -1,11 +1,10 @@
 package httperr
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
-
-	"github.com/domonda/errors"
 )
 
 func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
@@ -19,18 +18,19 @@ func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
 	http.Error(writer, message, http.StatusInternalServerError)
 }
 
-// Recover calls recover and converts panic values into an error
-func Recover() error {
-	switch r := recover().(type) {
-	case nil:
+func AsError(p interface{}) error {
+	if p == nil {
 		return nil
-	case error:
-		return r
-	case string:
-		return errors.New(r)
-	default:
-		return errors.Errorf("%+v", r)
 	}
+	switch x := p.(type) {
+	case error:
+		return x
+	case string:
+		return errors.New(x)
+	case fmt.Stringer:
+		return errors.New(x.String())
+	}
+	return errors.New(fmt.Sprintf("%+v", p))
 }
 
 // Response extends the error interface with the http.Handler interface

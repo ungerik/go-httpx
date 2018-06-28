@@ -10,7 +10,7 @@ type HTML func(http.ResponseWriter, *http.Request) ([]byte, error)
 
 func (handlerFunc HTML) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	if CatchPanics {
-		defer httperr.Handle(httperr.Recover(), writer, request)
+		defer httperr.RecoverAndHandlePanic(writer, request)
 	}
 
 	response, err := handlerFunc(writer, request)
