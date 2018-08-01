@@ -19,10 +19,9 @@ func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
 }
 
 func AsError(p interface{}) error {
-	if p == nil {
-		return nil
-	}
 	switch x := p.(type) {
+	case nil:
+		return nil
 	case error:
 		return x
 	case string:
