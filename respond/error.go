@@ -10,7 +10,9 @@ type Error func(http.ResponseWriter, *http.Request) error
 
 func (handlerFunc Error) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	if CatchPanics {
-		defer httperr.RecoverAndHandlePanic(writer, request)
+		defer func() {
+			httperr.HandlePanic(recover(), writer, request)
+		}()
 	}
 
 	err := handlerFunc(writer, request)

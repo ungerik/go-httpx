@@ -16,12 +16,14 @@ func (f HandlerFunc) HandleError(err error, writer http.ResponseWriter, request 
 
 var DefaultHandler Handler = HandlerFunc(DefaultHandlerFunc)
 
+// Handle will call DefaultHandler.HandleError(err, writer, request)
 func Handle(err error, writer http.ResponseWriter, request *http.Request) bool {
 	return DefaultHandler.HandleError(err, writer, request)
 }
 
-func RecoverAndHandlePanic(writer http.ResponseWriter, request *http.Request) bool {
-	return DefaultHandler.HandleError(AsError(recover()), writer, request)
+// HandlePanic will call DefaultHandler.HandleError(AsError(recoverResult), writer, request)
+func HandlePanic(recoverResult interface{}, writer http.ResponseWriter, request *http.Request) bool {
+	return DefaultHandler.HandleError(AsError(recoverResult), writer, request)
 }
 
 func DefaultHandlerFunc(err error, writer http.ResponseWriter, request *http.Request) bool {
