@@ -66,6 +66,7 @@ func WithStringArgsError(function interface{}) WithStringArgsErrorFunc {
 				panic(fmt.Errorf("Could not convert string argument %d '%s' to type %s becuase of error: %s", i, stringArgs[i], argTypes[i], err))
 			}
 		}
-		return v.Call(args)[0].Interface().(error)
+		err, _ := v.Call(args)[0].Interface().(error)
+		return err
 	}
 }
