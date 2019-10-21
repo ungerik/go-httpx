@@ -18,12 +18,15 @@ var DefaultHandler Handler = HandlerFunc(DefaultHandlerFunc)
 
 // Handle will call DefaultHandler.HandleError(err, writer, request)
 func Handle(err error, writer http.ResponseWriter, request *http.Request) bool {
+	if err == nil {
+		return false
+	}
 	return DefaultHandler.HandleError(err, writer, request)
 }
 
 // HandlePanic will call DefaultHandler.HandleError(AsError(recoverResult), writer, request)
 func HandlePanic(recoverResult interface{}, writer http.ResponseWriter, request *http.Request) bool {
-	return DefaultHandler.HandleError(AsError(recoverResult), writer, request)
+	return Handle(AsError(recoverResult), writer, request)
 }
 
 func DefaultHandlerFunc(err error, writer http.ResponseWriter, request *http.Request) bool {
@@ -39,6 +42,9 @@ func DefaultHandlerFunc(err error, writer http.ResponseWriter, request *http.Req
 }
 
 func ForEachHandler(err error, writer http.ResponseWriter, request *http.Request, handlers ...Handler) (handledAny bool) {
+	if err == nil {
+		return false
+	}
 	for _, handler := range handlers {
 		handled := handler.HandleError(err, writer, request)
 		handledAny = handledAny || handled

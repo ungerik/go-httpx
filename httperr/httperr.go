@@ -29,7 +29,7 @@ func AsError(p interface{}) error {
 	case fmt.Stringer:
 		return errors.New(x.String())
 	}
-	return errors.New(fmt.Sprintf("%+v", p))
+	return fmt.Errorf("%+v", p)
 }
 
 // Response extends the error interface with the http.Handler interface
