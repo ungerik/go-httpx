@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+// GracefulShutdownServerOnSignal gracefully shuts down the passed server
+// after the process was notified with any of the passed signals.
+// If no signals are passed, then SIGHUP, SIGINT, SIGTERM will be used.
+// If signalLog is not nil, then the received signal will be logged with it.
+// If errorLog is not nil, then any errors from the server shutdown will be logged with it.
 func GracefulShutdownServerOnSignal(server *http.Server, signalLog, errorLog Logger, timeout time.Duration, signals ...os.Signal) {
 	if len(signals) == 0 {
 		signals = []os.Signal{syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM}
@@ -19,7 +24,7 @@ func GracefulShutdownServerOnSignal(server *http.Server, signalLog, errorLog Log
 	go func() {
 		sig := <-shutdown
 		if signalLog != nil {
-			signalLog.Printf("received signal %s", sig)
+			signalLog.Printf("Received signal: %s", sig)
 		}
 
 		ctx := context.Background()
