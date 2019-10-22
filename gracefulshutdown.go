@@ -10,7 +10,9 @@ import (
 )
 
 // GracefulShutdownServerOnSignal gracefully shuts down the passed server
-// after the process was notified with any of the passed signals.
+// gracefully after the process was notified with any of the passed signals.
+// The server is guaranteed to shut down with the passed timeout after
+// a signal. A timeout value of zero disables the timeout.
 // If no signals are passed, then SIGHUP, SIGINT, SIGTERM will be used.
 // If signalLog is not nil, then the received signal will be logged with it.
 // If errorLog is not nil, then any errors from the server shutdown will be logged with it.
