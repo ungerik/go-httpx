@@ -1,2 +1,3 @@
 # go-httpx
-Extending Go's net/http package
+
+Useful extensions around Go's net/http package

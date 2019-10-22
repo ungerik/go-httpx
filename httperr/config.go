@@ -1,11 +1,9 @@
 package httperr
 
-type logger interface {
-	Printf(format string, args ...interface{})
-}
+import "github.com/ungerik/go-httpx"
 
 var (
-	Logger logger
+	Logger httpx.Logger
 
 	DebugShowInternalErrorsInResponse       bool
 	DebugShowInternalErrorsInResponseFormat = "\n%+v"
