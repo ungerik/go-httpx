@@ -1,6 +1,7 @@
 package httperr
 
 import (
+	"errors"
 	"net/http"
 )
 
@@ -33,7 +34,8 @@ func DefaultHandlerFunc(err error, writer http.ResponseWriter, request *http.Req
 	if err == nil {
 		return false
 	}
-	if errResponse, ok := AsResponse(err); ok {
+	var errResponse Response
+	if errors.As(err, &errResponse) {
 		errResponse.ServeHTTP(writer, request)
 	} else {
 		WriteInternalServerError(err, writer)
