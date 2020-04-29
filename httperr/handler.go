@@ -1,8 +1,10 @@
 package httperr
 
 import (
+	"database/sql"
 	"errors"
 	"net/http"
+	"os"
 )
 
 type Handler interface {
@@ -30,14 +32,23 @@ func HandlePanic(recoverResult interface{}, writer http.ResponseWriter, request 
 	return Handle(AsError(recoverResult), writer, request)
 }
 
-func DefaultHandlerFunc(err error, writer http.ResponseWriter, request *http.Request) bool {
+// DefaultHandlerFunc checks err unwraps to a http.Handler and calls its ServeHTTP method if available
+// else if err unwraps to os.ErrNotExist or sql.ErrNoRows a 404 Not Found response is written.
+// In all other cases a 500 Internal Server Error response is written. with the Error string
+// If DebugShowInternalErrorsInResponse is true, then err.Error() message is added to the response.
+// If err is nil, then no response is written and the function returns false.
+// If an error response was written, then the function returns true.
+func DefaultHandlerFunc(err error, writer http.ResponseWriter, request *http.Request) (responseWritten bool) {
 	if err == nil {
 		return false
 	}
-	var httpHandler http.Handler
-	if errors.As(err, &httpHandler) {
-		httpHandler.ServeHTTP(writer, request)
-	} else {
+	var httperrResponse Response
+	switch {
+	case errors.As(err, &httperrResponse):
+		httperrResponse.ServeHTTP(writer, request)
+	case errors.Is(err, os.ErrNotExist), errors.Is(err, sql.ErrNoRows):
+		http.NotFound(writer, request)
+	default:
 		WriteInternalServerError(err, writer)
 	}
 	return true
