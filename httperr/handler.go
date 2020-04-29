@@ -34,9 +34,9 @@ func DefaultHandlerFunc(err error, writer http.ResponseWriter, request *http.Req
 	if err == nil {
 		return false
 	}
-	var errResponse Response
-	if errors.As(err, &errResponse) {
-		errResponse.ServeHTTP(writer, request)
+	var httpHandler http.Handler
+	if errors.As(err, &httpHandler) {
+		httpHandler.ServeHTTP(writer, request)
 	} else {
 		WriteInternalServerError(err, writer)
 	}
