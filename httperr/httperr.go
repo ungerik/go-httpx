@@ -1,12 +1,17 @@
 package httperr
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 )
 
+// WriteInternalServerError writes err as 500 Internal Server Error reponse.
+// If Logger is not nil, then it will be used to log an error message.
+// If DebugShowInternalErrorsInResponse is true, then the error message
+// will be shown in the response body, else only "Internal Server Error" will be used.
 func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
 	message := http.StatusText(http.StatusInternalServerError)
 	if Logger != nil {
@@ -18,8 +23,29 @@ func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
 	http.Error(writer, message, http.StatusInternalServerError)
 }
 
-func AsError(p interface{}) error {
-	switch x := p.(type) {
+// WriteAsJSON unmarshals err as JSON and writes it as application/json
+// response body using the passed statusCode.
+// If err could not be marshalled as JSON, then an internal server error
+// will be written instead using WriteInternalServerError with a wrapped erorr message.
+func WriteAsJSON(err interface{}, statusCode int, writer http.ResponseWriter) {
+	body, e := json.MarshalIndent(err, "", "  ")
+	if e != nil {
+		e = fmt.Errorf("error while marshalling error value %+v as JSON: %w", err, e)
+		WriteInternalServerError(e, writer)
+		return
+	}
+
+	writer.Header().Set("Content-Type", "application/json")
+	writer.Header().Set("X-Content-Type-Options", "nosniff")
+	writer.WriteHeader(statusCode)
+	writer.Write(body)
+}
+
+// AsError converts val to an error by either casting val to error if possible,
+// or using its string value or String method as error message,
+// or using fmt.Errorf("%+v", val) to format the value as error.
+func AsError(val interface{}) error {
+	switch x := val.(type) {
 	case nil:
 		return nil
 	case error:
@@ -29,7 +55,7 @@ func AsError(p interface{}) error {
 	case fmt.Stringer:
 		return errors.New(x.String())
 	}
-	return fmt.Errorf("%+v", p)
+	return fmt.Errorf("%+v", val)
 }
 
 // Response extends the error interface with the http.Handler interface
