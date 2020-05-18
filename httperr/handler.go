@@ -46,8 +46,10 @@ func DefaultHandlerFunc(err error, writer http.ResponseWriter, request *http.Req
 	switch {
 	case errors.As(err, &httperrResponse):
 		httperrResponse.ServeHTTP(writer, request)
-	case errors.Is(err, os.ErrNotExist), errors.Is(err, sql.ErrNoRows):
-		http.NotFound(writer, request)
+	case errors.Is(err, os.ErrNotExist):
+		http.Error(writer, "Requested file not found", http.StatusNotFound)
+	case errors.Is(err, sql.ErrNoRows):
+		http.Error(writer, "Requested database row not found", http.StatusNotFound)
 	default:
 		WriteInternalServerError(err, writer)
 	}
