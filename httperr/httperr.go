@@ -14,9 +14,6 @@ import (
 // will be shown in the response body, else only "Internal Server Error" will be used.
 func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
 	message := http.StatusText(http.StatusInternalServerError)
-	if Logger != nil {
-		Logger.Printf("%s: %+v", message, err)
-	}
 	if DebugShowInternalErrorsInResponse {
 		message += fmt.Sprintf(DebugShowInternalErrorsInResponseFormat, err)
 	}
@@ -54,8 +51,36 @@ func AsError(val interface{}) error {
 		return errors.New(x)
 	case fmt.Stringer:
 		return errors.New(x.String())
+	default:
+		return fmt.Errorf("%+v", val)
 	}
-	return fmt.Errorf("%+v", val)
+}
+
+// DontLog wraps the passed error
+// so that ShouldLog returns true.
+//
+//   httperr.ShouldLog(httperr.BadRequest) == true
+//   httperr.ShouldLog(httperr.DontLog(httperr.BadRequest)) == false
+func DontLog(err error) error {
+	return errDontLog{err}
+}
+
+// ShouldLog checks if the passed error
+// has been wrapped with DontLog.
+//
+//   httperr.ShouldLog(httperr.BadRequest) == true
+//   httperr.ShouldLog(httperr.DontLog(httperr.BadRequest)) == false
+func ShouldLog(err error) bool {
+	var dontLog errDontLog
+	return !errors.As(err, &dontLog)
+}
+
+type errDontLog struct {
+	error
+}
+
+func (e errDontLog) Unwrap() error {
+	return e.error
 }
 
 // Response extends the error interface with the http.Handler interface
@@ -85,9 +110,6 @@ func (e *errWithStatus) Error() string {
 }
 
 func (e *errWithStatus) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	if Logger != nil {
-		Logger.Printf("%s", e)
-	}
 	http.Error(writer, e.Error(), e.statusCode)
 }
 
