@@ -2,6 +2,7 @@ package httperr
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -15,8 +16,6 @@ func (f HandlerFunc) HandleError(err error, writer http.ResponseWriter, request 
 	return f(err, writer, request)
 }
 
-var DefaultHandler Handler = HandlerFunc(DefaultHandlerImpl)
-
 // Handle will call DefaultHandler.HandleError(err, writer, request)
 func Handle(err error, writer http.ResponseWriter, request *http.Request) bool {
 	if err == nil {
@@ -28,6 +27,17 @@ func Handle(err error, writer http.ResponseWriter, request *http.Request) bool {
 // HandlePanic will call DefaultHandler.HandleError(AsError(recoverResult), writer, request)
 func HandlePanic(recoverResult interface{}, writer http.ResponseWriter, request *http.Request) bool {
 	return Handle(AsError(recoverResult), writer, request)
+}
+
+func ForEachHandler(err error, writer http.ResponseWriter, request *http.Request, handlers ...Handler) (handledAny bool) {
+	if err == nil {
+		return false
+	}
+	for _, handler := range handlers {
+		handled := handler.HandleError(err, writer, request)
+		handledAny = handledAny || handled
+	}
+	return handledAny
 }
 
 // DefaultHandlerImpl checks if err unwraps to a http.Handler and calls its ServeHTTP method
@@ -58,13 +68,14 @@ func DefaultHandlerImpl(err error, writer http.ResponseWriter, request *http.Req
 	return true
 }
 
-func ForEachHandler(err error, writer http.ResponseWriter, request *http.Request, handlers ...Handler) (handledAny bool) {
-	if err == nil {
-		return false
+// WriteInternalServerError writes err as 500 Internal Server Error reponse.
+// If Logger is not nil, then it will be used to log an error message.
+// If DebugShowInternalErrorsInResponse is true, then the error message
+// will be shown in the response body, else only "Internal Server Error" will be used.
+func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
+	message := http.StatusText(http.StatusInternalServerError)
+	if DebugShowInternalErrorsInResponse {
+		message += fmt.Sprintf(DebugShowInternalErrorsInResponseFormat, err)
 	}
-	for _, handler := range handlers {
-		handled := handler.HandleError(err, writer, request)
-		handledAny = handledAny || handled
-	}
-	return handledAny
+	http.Error(writer, message, http.StatusInternalServerError)
 }
