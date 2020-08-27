@@ -6,7 +6,7 @@ import (
 )
 
 // DontLog wraps the passed error
-// so that ShouldLog returns true.
+// so that ShouldLog returns false.
 //
 //   httperr.ShouldLog(httperr.BadRequest) == true
 //   httperr.ShouldLog(httperr.DontLog(httperr.BadRequest)) == false
