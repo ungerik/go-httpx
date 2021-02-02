@@ -7,17 +7,17 @@ import (
 )
 
 type Handler interface {
-	HandleError(err error, writer http.ResponseWriter, request *http.Request) bool
+	HandleError(err error, writer http.ResponseWriter, request *http.Request) (handled bool)
 }
 
-type HandlerFunc func(err error, writer http.ResponseWriter, request *http.Request) bool
+type HandlerFunc func(err error, writer http.ResponseWriter, request *http.Request) (handled bool)
 
-func (f HandlerFunc) HandleError(err error, writer http.ResponseWriter, request *http.Request) bool {
+func (f HandlerFunc) HandleError(err error, writer http.ResponseWriter, request *http.Request) (handled bool) {
 	return f(err, writer, request)
 }
 
 // Handle will call DefaultHandler.HandleError(err, writer, request)
-func Handle(err error, writer http.ResponseWriter, request *http.Request) bool {
+func Handle(err error, writer http.ResponseWriter, request *http.Request) (handled bool) {
 	if err == nil {
 		return false
 	}
@@ -25,7 +25,7 @@ func Handle(err error, writer http.ResponseWriter, request *http.Request) bool {
 }
 
 // HandlePanic will call DefaultHandler.HandleError(AsError(recoverResult), writer, request)
-func HandlePanic(recoverResult interface{}, writer http.ResponseWriter, request *http.Request) bool {
+func HandlePanic(recoverResult interface{}, writer http.ResponseWriter, request *http.Request) (handled bool) {
 	return Handle(AsError(recoverResult), writer, request)
 }
 

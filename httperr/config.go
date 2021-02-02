@@ -34,3 +34,8 @@ var (
 	NotFound         = New(http.StatusNotFound)         // 404: RFC 7231, 6.5.4
 	MethodNotAllowed = New(http.StatusMethodNotAllowed) // 405: RFC 7231, 6.5.5
 )
+
+const (
+	Handled    = true
+	NotHandled = false
+)
