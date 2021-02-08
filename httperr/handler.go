@@ -51,6 +51,22 @@ func DefaultHandlerImpl(err error, writer http.ResponseWriter, request *http.Req
 		return false
 	}
 
+	if WriteHandler(err, writer, request) {
+		return true
+	}
+
+	WriteInternalServerError(err, writer)
+	return true
+}
+
+// WriteHandler checks if err unwraps to a http.Handler and calls its ServeHTTP method
+// else it checks if err wrapped any key in SentinelHandlers and calls ServeHTTP of the http.Handler value.
+// If an error response was written, then the function returns true.
+func WriteHandler(err error, writer http.ResponseWriter, request *http.Request) (responseWritten bool) {
+	if err == nil {
+		return false
+	}
+
 	var handler http.Handler
 	if errors.As(err, &handler) {
 		handler.ServeHTTP(writer, request)
@@ -64,8 +80,7 @@ func DefaultHandlerImpl(err error, writer http.ResponseWriter, request *http.Req
 		}
 	}
 
-	WriteInternalServerError(err, writer)
-	return true
+	return false
 }
 
 // WriteInternalServerError writes err as 500 Internal Server Error reponse.
