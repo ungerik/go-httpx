@@ -31,8 +31,8 @@ func WriteXML(writer http.ResponseWriter, response interface{}) {
 		return
 	}
 	writer.Header().Set("Content-Type", "application/xml; charset=utf-8")
-	writer.Write([]byte(xml.Header))
-	writer.Write(b)
+	writer.Write([]byte(xml.Header)) //#nosec G104
+	writer.Write(b)                  //#nosec G104
 }
 
 func EncodeXML(response interface{}) ([]byte, error) {

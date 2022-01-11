@@ -31,7 +31,7 @@ func WriteJSON(writer http.ResponseWriter, response interface{}) {
 		return
 	}
 	writer.Header().Set("Content-Type", "application/json; charset=utf-8")
-	writer.Write(b)
+	writer.Write(b) //#nosec G104
 }
 
 func EncodeJSON(response interface{}) ([]byte, error) {

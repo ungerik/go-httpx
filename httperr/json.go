@@ -21,7 +21,7 @@ func WriteAsJSON(err interface{}, statusCode int, writer http.ResponseWriter) {
 	writer.Header().Set("Content-Type", "application/json")
 	writer.Header().Set("X-Content-Type-Options", "nosniff")
 	writer.WriteHeader(statusCode)
-	writer.Write(body)
+	writer.Write(body) //#nosec G104
 }
 
 // JSON returns a Response error that will respond with

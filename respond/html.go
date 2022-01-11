@@ -31,5 +31,5 @@ func (s StaticHTML) ServeHTTP(writer http.ResponseWriter, request *http.Request)
 
 func WriteHTML(writer http.ResponseWriter, response []byte) {
 	writer.Header().Add("Content-Type", "text/html; charset=utf-8")
-	writer.Write(response)
+	writer.Write(response) //#nosec G104
 }
