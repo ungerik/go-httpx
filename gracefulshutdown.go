@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// GracefulShutdownServerOnSignal gracefully shuts down the passed server
+// GracefulShutdownServerOnSignal shuts down the passed server
 // gracefully after the process was notified with any of the passed signals.
 // The server is guaranteed to shut down with the passed timeout after
 // a signal. A timeout value of zero disables the timeout.
