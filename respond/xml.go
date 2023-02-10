@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"net/http"
 
+	"github.com/ungerik/go-httpx/contenttype"
 	"github.com/ungerik/go-httpx/httperr"
 )
 
@@ -30,7 +31,7 @@ func WriteXML(writer http.ResponseWriter, response interface{}) {
 		httperr.WriteInternalServerError(err, writer)
 		return
 	}
-	writer.Header().Set("Content-Type", "application/xml; charset=utf-8")
+	writer.Header().Set("Content-Type", contenttype.XML)
 	writer.Write([]byte(xml.Header)) //#nosec G104
 	writer.Write(b)                  //#nosec G104
 }

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/ungerik/go-httpx/contenttype"
 )
 
 // WriteAsJSON unmarshals err as JSON and writes it as application/json
@@ -18,7 +20,7 @@ func WriteAsJSON(err interface{}, statusCode int, writer http.ResponseWriter) {
 		return
 	}
 
-	writer.Header().Set("Content-Type", "application/json")
+	writer.Header().Set("Content-Type", contenttype.JSON)
 	writer.Header().Set("X-Content-Type-Options", "nosniff")
 	writer.WriteHeader(statusCode)
 	writer.Write(body) //#nosec G104
