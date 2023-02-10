@@ -3,6 +3,7 @@ package respond
 import (
 	"net/http"
 
+	"github.com/ungerik/go-httpx/contenttype"
 	"github.com/ungerik/go-httpx/httperr"
 )
 
@@ -30,6 +31,6 @@ func (s StaticPlaintext) ServeHTTP(writer http.ResponseWriter, request *http.Req
 }
 
 func WritePlaintext(writer http.ResponseWriter, response string) {
-	writer.Header().Add("Content-Type", "text/plain; charset=utf-8")
+	writer.Header().Add("Content-Type", contenttype.PlainTextUTF8)
 	writer.Write([]byte(response)) //#nosec G104
 }

@@ -3,6 +3,7 @@ package respond
 import (
 	"net/http"
 
+	"github.com/ungerik/go-httpx/contenttype"
 	"github.com/ungerik/go-httpx/httperr"
 )
 
@@ -30,6 +31,6 @@ func (s StaticHTML) ServeHTTP(writer http.ResponseWriter, request *http.Request)
 }
 
 func WriteHTML(writer http.ResponseWriter, response []byte) {
-	writer.Header().Add("Content-Type", "text/html; charset=utf-8")
+	writer.Header().Add("Content-Type", contenttype.HTML)
 	writer.Write(response) //#nosec G104
 }
