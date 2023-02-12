@@ -31,6 +31,6 @@ func (s StaticPlaintext) ServeHTTP(writer http.ResponseWriter, request *http.Req
 }
 
 func WritePlaintext(writer http.ResponseWriter, response string) {
-	writer.Header().Add("Content-Type", contenttype.PlainTextUTF8)
+	writer.Header().Add("Content-Type", contenttype.PlainText)
 	writer.Write([]byte(response)) //#nosec G104
 }
