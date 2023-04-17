@@ -32,6 +32,13 @@ func Errorf(statusCode int, format string, a ...interface{}) Response {
 	}
 }
 
+func NewFromResponse(resonse *http.Response) Response {
+	return statusCodeAndText{
+		statusCode: resonse.StatusCode,
+		statusText: resonse.Status,
+	}
+}
+
 func (e statusCodeAndText) Error() string {
 	if e.statusText == "" {
 		return http.StatusText(e.statusCode)
