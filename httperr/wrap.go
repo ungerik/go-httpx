@@ -7,19 +7,27 @@ import (
 
 // DontLog wraps the passed error
 // so that ShouldLog returns false.
+// A nil error won't be wrapped but returned as nil.
 //
-//   httperr.ShouldLog(httperr.BadRequest) == true
-//   httperr.ShouldLog(httperr.DontLog(httperr.BadRequest)) == false
+//	httperr.ShouldLog(httperr.BadRequest) == true
+//	httperr.ShouldLog(httperr.DontLog(httperr.BadRequest)) == false
 func DontLog(err error) error {
+	if err == nil {
+		return nil
+	}
 	return errDontLog{err}
 }
 
 // ShouldLog checks if the passed error
 // has been wrapped with DontLog.
+// A nil error results in false.
 //
-//   httperr.ShouldLog(httperr.BadRequest) == true
-//   httperr.ShouldLog(httperr.DontLog(httperr.BadRequest)) == false
+//	httperr.ShouldLog(httperr.BadRequest) == true
+//	httperr.ShouldLog(httperr.DontLog(httperr.BadRequest)) == false
 func ShouldLog(err error) bool {
+	if err == nil {
+		return false
+	}
 	var dontLog errDontLog
 	return !errors.As(err, &dontLog)
 }
