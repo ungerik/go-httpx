@@ -25,7 +25,7 @@ func New(statusCode int, statusText ...string) Response {
 	}
 }
 
-func Errorf(statusCode int, format string, a ...interface{}) Response {
+func Errorf(statusCode int, format string, a ...any) Response {
 	return statusCodeAndText{
 		statusCode: statusCode,
 		statusText: fmt.Sprintf(format, a...),

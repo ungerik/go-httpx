@@ -43,7 +43,7 @@ func (e errDontLog) Unwrap() error {
 // AsError converts val to an error by either casting val to error if possible,
 // or using its string value or String method as error message,
 // or using fmt.Errorf("%+v", val) to format the value as error.
-func AsError(val interface{}) error {
+func AsError(val any) error {
 	switch x := val.(type) {
 	case nil:
 		return nil

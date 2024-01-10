@@ -12,7 +12,7 @@ import (
 // response body using the passed statusCode.
 // If err could not be marshalled as JSON, then an internal server error
 // will be written instead using WriteInternalServerError with a wrapped erorr message.
-func WriteAsJSON(err interface{}, statusCode int, writer http.ResponseWriter) {
+func WriteAsJSON(err any, statusCode int, writer http.ResponseWriter) {
 	body, e := json.MarshalIndent(err, "", "  ")
 	if e != nil {
 		e = fmt.Errorf("can't marshall error of type %T as JSON because: %w", err, e)
@@ -31,7 +31,7 @@ func WriteAsJSON(err interface{}, statusCode int, writer http.ResponseWriter) {
 // and the passed body marshalled as JSON.
 // Pass a json.RawMessage as body if the error
 // message is already in JSON format.
-func JSON(statusCode int, body interface{}) Response {
+func JSON(statusCode int, body any) Response {
 	return statusCodeAndJSON{
 		statusCode: statusCode,
 		body:       body,
@@ -40,7 +40,7 @@ func JSON(statusCode int, body interface{}) Response {
 
 type statusCodeAndJSON struct {
 	statusCode int
-	body       interface{}
+	body       any
 }
 
 func (e statusCodeAndJSON) Error() string {

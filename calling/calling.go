@@ -8,7 +8,7 @@ import (
 type WithStringArgsFunc func(args ...string)
 type WithStringArgsErrorFunc func(args ...string) error
 
-func WithStringArgs(function interface{}) WithStringArgsFunc {
+func WithStringArgs(function any) WithStringArgsFunc {
 	v := reflect.ValueOf(function)
 	t := v.Type()
 	if t.Kind() != reflect.Func {
@@ -40,7 +40,7 @@ func WithStringArgs(function interface{}) WithStringArgsFunc {
 
 var typeOfError = reflect.TypeOf((*error)(nil)).Elem()
 
-func WithStringArgsError(function interface{}) WithStringArgsErrorFunc {
+func WithStringArgsError(function any) WithStringArgsErrorFunc {
 	v := reflect.ValueOf(function)
 	t := v.Type()
 	if t.Kind() != reflect.Func {

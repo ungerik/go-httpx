@@ -8,7 +8,7 @@ import (
 	"github.com/ungerik/go-httpx/httperr"
 )
 
-type XML func(http.ResponseWriter, *http.Request) (response interface{}, err error)
+type XML func(http.ResponseWriter, *http.Request) (response any, err error)
 
 func (handlerFunc XML) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	if CatchPanics {
@@ -25,7 +25,7 @@ func (handlerFunc XML) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 	WriteXML(writer, response)
 }
 
-func WriteXML(writer http.ResponseWriter, response interface{}) {
+func WriteXML(writer http.ResponseWriter, response any) {
 	b, err := EncodeXML(response)
 	if err != nil {
 		httperr.WriteInternalServerError(err, writer)
@@ -36,7 +36,7 @@ func WriteXML(writer http.ResponseWriter, response interface{}) {
 	writer.Write(b)                  //#nosec G104
 }
 
-func EncodeXML(response interface{}) ([]byte, error) {
+func EncodeXML(response any) ([]byte, error) {
 	if PrettyPrint {
 		return xml.MarshalIndent(response, "", PrettyPrintIndent)
 	}

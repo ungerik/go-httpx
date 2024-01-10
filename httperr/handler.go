@@ -13,6 +13,9 @@ type Handler interface {
 type HandlerFunc func(err error, writer http.ResponseWriter, request *http.Request) (handled bool)
 
 func (f HandlerFunc) HandleError(err error, writer http.ResponseWriter, request *http.Request) (handled bool) {
+	if err == nil {
+		return false
+	}
 	return f(err, writer, request)
 }
 
@@ -25,7 +28,7 @@ func Handle(err error, writer http.ResponseWriter, request *http.Request) (handl
 }
 
 // HandlePanic will call DefaultHandler.HandleError(AsError(recoverResult), writer, request)
-func HandlePanic(recoverResult interface{}, writer http.ResponseWriter, request *http.Request) (handled bool) {
+func HandlePanic(recoverResult any, writer http.ResponseWriter, request *http.Request) (handled bool) {
 	return Handle(AsError(recoverResult), writer, request)
 }
 
@@ -87,7 +90,7 @@ func WriteHandler(err error, writer http.ResponseWriter, request *http.Request) 
 // If Logger is not nil, then it will be used to log an error message.
 // If DebugShowInternalErrorsInResponse is true, then the error message
 // will be shown in the response body, else only "Internal Server Error" will be used.
-func WriteInternalServerError(err interface{}, writer http.ResponseWriter) {
+func WriteInternalServerError(err any, writer http.ResponseWriter) {
 	message := http.StatusText(http.StatusInternalServerError)
 	if DebugShowInternalErrorsInResponse {
 		message += fmt.Sprintf(DebugShowInternalErrorsInResponseFormat, err)
