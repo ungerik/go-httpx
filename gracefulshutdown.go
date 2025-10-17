@@ -9,13 +9,34 @@ import (
 	"time"
 )
 
-// GracefulShutdownServerOnSignal shuts down the passed server
-// gracefully after the process was notified with any of the passed signals.
-// The server is guaranteed to shut down with the passed timeout after
-// a signal. A timeout value of zero disables the timeout.
-// If no signals are passed, then SIGHUP, SIGINT, SIGTERM will be used.
-// If signalLog is not nil, then the received signal will be logged with it.
-// If errorLog is not nil, then any errors from the server shutdown will be logged with it.
+// GracefulShutdownServerOnSignal sets up a goroutine that listens for OS signals
+// and gracefully shuts down the HTTP server when a signal is received.
+//
+// The function configures the server to perform a graceful shutdown, which means:
+//   - The server stops accepting new connections
+//   - All active connections are allowed to complete
+//   - The server waits for all handlers to finish (up to the timeout)
+//   - Resources are cleaned up properly
+//
+// Parameters:
+//   - server: The http.Server to shut down
+//   - signalLog: Optional logger for received signals (can be nil)
+//   - errorLog: Optional logger for shutdown errors (can be nil)
+//   - timeout: Maximum duration to wait for active connections to complete.
+//     A value of zero means no timeout (wait indefinitely).
+//   - signals: OS signals to listen for. If empty, defaults to SIGHUP, SIGINT, SIGTERM.
+//
+// Example:
+//
+//	server := &http.Server{Addr: ":8080", Handler: mux}
+//	logger := log.New(os.Stdout, "", log.LstdFlags)
+//	httpx.GracefulShutdownServerOnSignal(server, logger, logger, 30*time.Second)
+//	if err := server.ListenAndServe(); err != http.ErrServerClosed {
+//	    log.Fatal(err)
+//	}
+//
+// Note: This function must be called before server.ListenAndServe() to ensure
+// the signal handler is registered before the server starts.
 func GracefulShutdownServerOnSignal(server *http.Server, signalLog, errorLog Logger, timeout time.Duration, signals ...os.Signal) {
 	if len(signals) == 0 {
 		signals = []os.Signal{syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM}
